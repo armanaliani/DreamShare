@@ -45,7 +45,7 @@ main {
   background-attachment: fixed;
   padding-top: 25px;
   background-position:center;
-  background: url(/dreamshare/static/media/wallpaperbetter.84058aa5.jpg) fixed;
+  background: url(/dreamshare/static/media/wallpaperbetter.84058aa5.jpg) center fixed;
 }
 
 .preloader {
