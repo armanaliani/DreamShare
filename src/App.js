@@ -3,10 +3,11 @@ import firebase from './firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
-import { faMoon } from '@fortawesome/free-solid-svg-icons';
-import { faSun } from '@fortawesome/free-solid-svg-icons';
+import { faComment } from '@fortawesome/free-solid-svg-icons';
 import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
+import { faShare } from '@fortawesome/free-solid-svg-icons';
 import swal from 'sweetalert';
+import cloudImg from './assets/dreamShareAkatsukiCloud.png' // relative path to image 
 import './App.css';
 
 class App extends Component {
@@ -16,13 +17,13 @@ class App extends Component {
       dreams: [],
       userInput: '',
       inputTitle: '',
-      errorMessage: '',
-      darkMode: false, 
+      inputComment: '',
+      limit: 7,
     }
   }
 
-  // pull data from firebase to display
   componentDidMount() {
+    // pull data from firebase to display
     const dbRef = firebase.database().ref();
 
     dbRef.on('value', (snapshot) => {
@@ -42,7 +43,18 @@ class App extends Component {
         dreams: newDreamsArray
       })
     })
+
+    window.addEventListener('load', this.handleLoad);
   }
+
+  componentWillUnmount() { 
+    window.removeEventListener('load', this.handleLoad)  
+  }
+
+  handleLoad() {
+    const loader = document.getElementsByClassName('preloader');
+    loader[0].classList.toggle("loaded");
+   }
 
   // dream content event listener
   handleChange = (event) => {
@@ -69,9 +81,13 @@ class App extends Component {
       const dreamObjectTwo = {
         dream: this.state.userInput,
         title: this.state.inputTitle,
-        vote: 0
+        vote: 0,
+        comments: ['']
       }
-      dbRef.push(dreamObjectTwo);
+
+      // push dream to db AND set local storage item as dream entry author
+      const key = dbRef.push(dreamObjectTwo).key;
+      this.setStorage(`${key}author`, 'yes');
 
       // reset error handling
       this.setState({
@@ -81,9 +97,11 @@ class App extends Component {
       window.location = "#addedDream";
     } else {
       // error handling
-      this.setState({
-        errorMessage: "Please give your entry a title and content before submitting"
-      })
+      swal({
+        text: "Please give your entry a title and content before submitting",
+        icon: "warning",
+        button: "OK",
+      });
     }
 
     // clear input text
@@ -95,53 +113,165 @@ class App extends Component {
 
   // upvote selected dream
   handleVote = (voteId) => {
-    const dbRef = firebase.database().ref(`/${voteId}`);
+    const localStorageItem = window.localStorage.getItem(`${voteId}liked`);
+    if (localStorageItem) {
+      const dbRef = firebase.database().ref(`/${voteId}`);
+  
+      dbRef.once('value', (snapshot) => {
+        const newValue = snapshot.val();
+        newValue.vote--;
+  
+        dbRef.set(newValue);
+        // remove from local storage
+        window.localStorage.removeItem(`${voteId}liked`, 'yes');
+        // change styling
+        document.getElementsByClassName(`vote${voteId}`)[0].classList.remove("liked");
+      })
+    } else {
+      const dbRef = firebase.database().ref(`/${voteId}`);
+  
+      dbRef.once('value', (snapshot) => {
+        const newValue = snapshot.val();
+        newValue.vote++;
+  
+        dbRef.set(newValue);
+        this.setStorage(`${voteId}liked`, 'yes');
+      }) 
+    }
+  }
 
-    dbRef.once('value', (snapshot) => {
-      const newValue = snapshot.val();
-      newValue.vote++;
+  // comment event listener
+  handleComment = (event) => {
+    this.setState({
+      inputComment: event.target.value
+    })
+  }
 
-      dbRef.set(newValue);
-    }) 
+  // show add comment option
+  handleShowAddComment = (key) => {
+    document.getElementsByClassName(`${key}input`)[0].classList.toggle("show");
+  }
+
+  // add comment to a dream
+  handleAddComment = (key) => {
+    const dbRef = firebase.database().ref(`/${key}`);
+
+    if (this.state.inputComment !== "") {
+      dbRef.once('value', (snapshot) => {
+        const newValue = snapshot.val();
+        newValue.comments.push(this.state.inputComment);
+        dbRef.set(newValue);
+        const commentIndex = newValue.comments.length - 1;
+        this.setStorage(`${key}${commentIndex}`, 'yes');
+      }) 
+
+      // hide comment input
+      setTimeout(() => {
+        document.getElementsByClassName(`${key}input`)[0].classList.remove("show");
+      }, 0)
+    } else {
+      swal({
+        text: "Sorry, can't submit an empty comment",
+        button: "OK",
+      });
+    }
+
+    // clear input value
+    document.querySelector(`.dream${key} .commentSectionInput`).value = '';
+    this.setState({
+      inputComment: ''
+    })
   }
 
   // delete a dream
   handleRemove = (dreamId) => {
-    swal({
-      title: "Are you sure?",
-      text: "Once deleted, you'll lose this dream forever",
-      icon: "warning",
-      buttons: true,
-      dangerMode: true,
-    })
-    .then((willDelete) => {
-      if (willDelete) {
-        swal("Your Dream has been deleted!", {
-          icon: "success",
-        });
-        const dbRef = firebase.database().ref();
-
-        dbRef.child(dreamId).remove();
-      } else {
-        swal("Your Dream is safe!");
-      }
-    });
-  }
+    const localStorageItem = window.localStorage.getItem(`${dreamId}author`);
+    if (localStorageItem) {
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, you'll lose this dream forever",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          swal("Your Dream has been deleted!", {
+            icon: "success",
+          });
+          const dbRef = firebase.database().ref();
   
-  // dark mode theme toggle
-  handleTheme = () => {
-    if (this.state.darkMode === false) {
-      this.setState({ darkMode: true});
+          dbRef.child(dreamId).remove();
+        } else {
+          swal("Your Dream is safe!");
+        }
+      });
     } else {
-      this.setState({ darkMode: false});
+      swal({
+        text: "Trying to delete someone else's dream?",
+        icon: "warning",
+        button: "My Bad",
+      });
     }
   }
 
+  handleRemoveComment = (dreamId, i) => {
+    const localStorageItem = window.localStorage.getItem(`${dreamId}${i + 1}`);
+    if (localStorageItem) {
+      swal({
+        title: "Are you sure?",
+        text: "Once deleted, you'll lose this comment forever",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((willDelete) => {
+        if (willDelete) {
+          swal("Your comment has been deleted!", {
+            icon: "success",
+          });
+          const dbRef = firebase.database().ref();
+  
+          dbRef.child(`${dreamId}/comments/${i + 1}`).remove();
+          window.localStorage.removeItem(`${dreamId}${i + 1}`);
+        } else {
+          swal("Your comment is safe!");
+        }
+      });
+    } else {
+      swal({
+        text: "Trying to delete someone else's comment?",
+        icon: "warning",
+        button: "My Bad",
+      });
+    }
+  }
+
+  // set dream entry/comment ownership to local storage
+  setStorage(key, status) {
+    const localStorageItem = key
+    const localItemStatus = [
+            // will hold either author, liked, or index of comment written by user
+            status
+    ]
+    window.localStorage.setItem(localStorageItem, localItemStatus);
+}
+
   render() {
+    // pull storage data for styling
+    const dreams = this.state.dreams
+    dreams.forEach((i) => {
+      if (window.localStorage.getItem(`${i.key}liked`)) {
+        setTimeout(() => {
+          document.getElementsByClassName(`vote${i.key}`)[0].classList.add("liked");
+        }, 0)
+      }
+    });
+
     return (
-      <main className={this.state.darkMode ? 'darkMode ': 'app'} idname="top">
-        <div className="themeToggle">
-          <button aria-label="light/dark mode" onClick={this.handleTheme}><FontAwesomeIcon icon={this.state.darkMode ? faSun : faMoon}/></button>
+      <main className={'app'} idname="top">
+        <div className='preloader'>
+          <img src={cloudImg} alt="a pulsing cloud while app content loads" />
         </div>
         <div className="appBackground">
           <section className="top">
@@ -164,8 +294,6 @@ class App extends Component {
                 ></textarea>
                 <button className="addDream" onClick={this.handleClick}>Share Dream</button>
               </form>
-
-              <p className="errorMessage">{this.state.errorMessage}</p>
             </div>
           </section>
           <section className="displaySection">
@@ -173,14 +301,31 @@ class App extends Component {
               {
                 this.state.dreams.map( (dreamObject) => {
                   return (
-                  <li key={dreamObject.key} className="returnDream">
+                  <li key={dreamObject.key} className={`returnDream dream${dreamObject.key}`}>
                     <h2>{dreamObject.data.title}</h2>
                     <p>{dreamObject.data.dream}</p>
                     <div className="upVote">
                       <p>{dreamObject.data.vote}</p>
-                      <button aria-label="like this dream" className="voteButton" name="like entry Button" onClick={() => this.handleVote(dreamObject.key)}><FontAwesomeIcon icon={faHeart}/></button>
+                      <button aria-label="like this dream" className={`vote${dreamObject.key} voteButton`} name="like entry Button" onClick={() => this.handleVote(dreamObject.key)}><FontAwesomeIcon icon={faHeart}/></button>
+                      <p>{dreamObject.data.comments.slice(1).length}</p>
+                      <button aria-label="add a comment to this dream entry" className="commentbutton" name="add comment button" onClick={() => this.handleShowAddComment(dreamObject.key)}><FontAwesomeIcon icon={faComment}/></button>
                     </div>
                     <button aria-label="remove this dream entry" className="removeButton" name="remove entry button" onClick={() => this.handleRemove(dreamObject.key)}><FontAwesomeIcon icon={faTimes}/></button>
+                    <form action="submit" className={`${dreamObject.key}input commentInput`}>
+                      <label htmlFor="newComment" aria-label="add a comment"></label>
+                      <input onChange={this.handleComment} value={this.state.dreams.inputComment}type="text" className={'commentSectionInput'} id={`${dreamObject.key}newComment newComment`} placeholder="Comment" maxLength="50"/>
+                      <i className="addComment" onClick={() => this.handleAddComment(dreamObject.key)}><FontAwesomeIcon icon={faShare}/></i>
+                    </form>
+                    <div className="commentSection">
+                        {
+                          dreamObject.data.comments.slice(1).map((item, i) => 
+                          <div key={i} className="commentChild">
+                            <p>{item}</p>
+                            <button aria-label="remove this comment"  name="remove comment button" className='removeCommentButton' onClick={() => this.handleRemoveComment(dreamObject.key, i)}><FontAwesomeIcon icon={faTimes}/></button>
+                          </div>
+                          )
+                        }
+                    </div>
                   </li>
                   )
                 })
