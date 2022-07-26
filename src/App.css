@@ -15,29 +15,73 @@ html {
   scroll-behavior: smooth;
 }
 
+/* varibales */
+:root {
+  --border: 5px solid #fafafa;
+  --border-radius: 20px;
+  --secondary-colour: rgb(232, 1, 147);
+  --dark-colour: #232323;
+  --light-colour: #fafafa;
+  --light-subtle: rgba(255, 255, 255, 0.3);
+  --background-dark: rgba(0,0,0,0.7);
+  --accent-yellow: #FED955;
+  --accent-red:  #FF2B77;
+}
+
 main {
   text-align: center;
   height: 100%;
   font-family: 'Roboto', sans-serif;
   font-size: 100%;
+  color: var(--light-colour);
+  letter-spacing: 0.025rem;
 }
 
 .appBackground {
-  background-image:url(assets/dreamShareBackground.jpg);
+  background-image:url(assets/wallpaperbetter.jpg);
+  background-color: var(--background-dark);
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  padding-top: 25px;
+  background-position:center;
+}
+
+.preloader {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  z-index: 10;
+  background-color: var(--dark-colour);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.preloader img {
+  width: 250px;
+  max-width: 60vw;
+  animation: pulse .75s ease infinite;
+  animation-direction: alternate ;
+}
+.preloader.loaded {
+  display: none;
+}
+
+@keyframes pulse {
+  form {transform: scale(1);}
+  to {transform: scale(1.1);}
 }
 
 /* landing page styles */
 .top {
-  padding-bottom: 15px;
-  color: #232323;
-  background: #fafafa;
-  border: 8px solid #232323;
+  padding-bottom: 10px;
+  color: var(--light-colour);
+  background: var(--background-dark);
+  border: var(--border);
+  border-radius: var(--border-radius);
   max-width: 800px;
-  margin: 0 auto;
-  margin-bottom: 50px;
+  margin:0px auto 50px auto;
 }
 /* /////////////////////////////////// */
 /* text styles */
@@ -45,7 +89,7 @@ main {
 h1, 
 h2,
 label {
-  font-family: 'Special Elite', cursive;
+  font-family: 'Righteous', cursive;
   text-transform: capitalize;
   white-space: initial;
 }
@@ -57,15 +101,16 @@ h1 {
 
 h1 {
   margin-top: 0;
-  margin-bottom: 22px;
+  margin-bottom: 0px;
   padding-top: 5vh;
   font-size: 5.6rem;
 }
 
 h2 {
   padding-bottom: 11px;
-  border-bottom: 2px solid #232323;
+  font-size: 1.8rem;
   word-wrap: break-word;
+  line-height: 30px;
 }
 
 .top h2 {
@@ -119,33 +164,36 @@ label {
 
 .titleInput:focus,
 .dreamInput:focus {
-  border: 8px solid #778899;
+  border: 5px solid #778899;
 }
 
 .addDream {
   margin-top: 20px;
   padding: 9px;
-  border: 5px solid #232323;
-  border-radius: 10px;
-  font-family: 'Special Elite', cursive;
-  background-color: white;
+  border: 5px solid var(--light-colour);
+  border-radius: var(--border-radius);
+  font-family: 'Righteous', cursive;
+  background-color: var(--background-dark);
   font-size: 1.3rem;
   transition:transform 0.3s;
+  color: var(--light-colour);
 }
 
 .addDream:hover,
 .addDream:focus {
-  background-color: #232323;
-  color: #fafafa;
-  transform: scale(1.05);
+  background-color: var(--light-colour);
+  color: var(--dark-colour);
+  transform: scale(1.01);
 }
 
 form input, 
 form textarea {
-  border: 8px solid #232323;
-  border-radius: 10px;
+  border: var(--border);
+  border-radius: var(--border-radius);
   display: block;
   margin: 0 auto;
+  background-color: var(--background-dark);
+  color: var(--light-colour);
 }
 
 /* /////////////////////////////////// */
@@ -170,12 +218,13 @@ form textarea {
   display: inline-block;
   margin-bottom: 20px;
   text-align: left;
-  background-color: white;
+  background-color: var(--background-dark);
   width:100% ;
-  border: 8px solid #232323;
-  border-radius: 10px;
+  border: var(--border);
+  border-radius: var(--border-radius);
   position: relative;
   word-wrap: break-word;
+  line-height: 20px;
 }
 
 .wrapper {
@@ -196,7 +245,7 @@ form textarea {
 
 .removeButton:hover,
 .removeButton:focus {
-  color: black;
+  color: var(--accent-red);
 }
 
 .upVote {
@@ -206,14 +255,114 @@ form textarea {
 .voteButton {
   background-color: transparent;
   border: none;
+  color: var(--light-colour);
 }
 
 .voteButton:hover {
-  color: red;
+  color: var(--accent-yellow);
 }
 
-.voteButton:focus {
-  color: rgb(133, 21, 21);
+.voteButton.liked {
+  color: var(--accent-red);
+}
+
+.commentSection {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.commentInput {
+  display: none;
+}
+
+.commentInput.show {
+  display: block;
+  position: relative;
+  margin: 5px -20px;
+}
+
+.addComment {
+  position: absolute;
+  right: 0px;
+  top: 2px;
+  color: var(--dark-colour);
+  background-color: var(--light-colour);
+  width: 45px;
+  height: 45px;
+  border-radius: 0px 20px 20px 0px;
+  font-size: 1.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.addComment:hover,
+.addComment:focus {
+  font-size: 1.5rem;
+}
+
+.commentbutton {
+  border: none;
+  background: none;
+  color: var(--light-colour);
+}
+
+.commentbutton:hover,
+.commentbutton:focus {
+  color: var(--accent-yellow);
+}
+
+.commentChild {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 15px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--light-subtle);
+}
+
+.commentChild p {
+  max-width: 90%;
+}
+
+.commentSectionInput {
+  width: 100%;
+  padding: 10px 30px 10px 5px;
+}
+
+.removeCommentButton {
+  background: none;
+  border: none;
+  color: var(--light-colour);
+  font-size: 1.1rem;
+}
+
+.removeCommentButton:hover,
+.removeCommentButton:focus {
+  color: var(--accent-red);
+}
+
+/* scrollbar styles */
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  background: var(--dark-colour);
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--dark-colour);
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px 0.01px var(--accent-yellow);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--light-colour);
 }
 /* /////////////////////////////////// */
 /* dynamic dream display styles */
@@ -222,153 +371,71 @@ form textarea {
 /* /////////////////////////////////// */
 /* footer styles */
 /* /////////////////////////////////// */
+footer {
+  margin-top: 75px;
+  padding-top: 15px;
+  border-top: var(--border);
+  background-color: var(--background-dark);
+}
+
 footer p {
   margin: 0;
   padding: 22px;
   font-family: 'Roboto', sans-serif;
   font-size: 1.1rem;
-  color: #232323;
+  color: var(--light-colour);
 }
 
 footer a {
   text-decoration: none;
-  color: #232323;
+  color: var(--light-colour);
   padding: 5px;
+  transition: all ease 0.3s;
 }
 
 footer a:hover,
-footer a:focus {
-  padding-bottom: 2px;
-  border-bottom: 3px solid #232323;
-}
-
-footer {
-  border-top: 5px solid #232323;
-  background: #fafafa;
+footer a:focus,
+footer a:hover svg,
+footer a:focus svg {
+  transform: scale(1.05);
+  color: var(--accent-yellow);
 }
 
 footer .fa-angle-up {
   font-size: 50px;
 }
-/* /////////////////////////////////// */
-/* dark mode */
-/* /////////////////////////////////// */
 
-/* dark mode toggle */
-
-.themeToggle button {
-  top: 0px;
-  right: 0px;
-  padding: 15px;
-  background: #232323;
-  border: none;
-  position: fixed;
-  font-size: 1.7rem;
-  z-index: 10;
+/* swal popup modal */
+.swal-modal {
+  background-color: var(--dark-colour);
+  border: var(--border);
+  border-radius: var(--border-radius);
 }
 
-.themeToggle button:hover,
-.darkMode .themeToggle button:hover,
-.themeToggle button:focus,
-.darkMode .themeToggle button:focus {
-  background-color: gold;
+.swal-text,
+.swal-title {
+  color: var(--light-colour);
 }
 
-.darkMode .themeToggle button {
-  background: #fafafa;
+.swal-button {
+  color: var(--dark-colour);
 }
-.fa-sun {
-  color: #232323;
+.swal-icon--success__hide-corners {
+  background-color: var(--dark-colour);
 }
-.fa-moon {
-  color: #fafafa;
-}
-
-
-/* main dark mode */
-.darkMode .appBackground {
-  background-image:url(assets/dreamShareBackgroundDark.jpg);
-}
-.darkMode .top {
-  color: #fafafa;
-  border: 8px solid #fafafa;
-  background: #232323;
-}
-.darkMode .top h2 {
-  border-bottom: none;
-}
-.darkMode h2,
-.darkMode p {
-  color: #fafafa;
-}
-.darkMode .errorMessage {
-  color: red;
-}
-.darkMode .addDream {
-  border: 5px solid #fafafa;
-  background-color: #232323;
-}
-.darkMode .addDream:hover,
-.darkMode .addDream:focus {
-  background-color: #fafafa;
-  color: #232323;
-}
-.darkMode form input, 
-.darkMode form textarea {
-  border: 8px solid #fafafa;
-  background-color: #232323;
-  color: #fafafa;
-}
-.darkMode form button {
-  color: #fafafa;
-}
-
-/* dream display dark mode */
-.darkMode h2 {
-  border-bottom: 2px solid #fafafa;
-}
-.darkMode .returnDream {
-  background-color: #232323;
-  border: 8px solid #fafafa;
-}
-.darkMode .removeButton {
-  color: #868686;
-}
-.darkMode .removeButton:hover,
-.darkMode .removeButton:focus {
-  color: #fafafa;
-}
-.darkMode .voteButton {
-  color: #fafafa;
-}
-.darkMode .voteButton:hover {
-  color: red;
-}
-.darkMode .voteButton:focus {
-  color: rgb(241, 120, 120);
-}
-
-/* dark mode footer */
-.darkMode footer p {
-  color: #fafafa;
-}
-.darkMode footer a {
-  color: #fafafa;
-}
-.darkMode footer a:hover {
-  border-bottom: 3px solid #fafafa;
-}
-.darkMode footer {
-  border-top: 5px solid #fafafa;
-  background: #232323;
+.swal-icon--success:after, 
+.swal-icon--success:before {
+  background-color: var(--dark-colour);
 }
 
 /* smaller image size on smaller screens for performance */
-@media (max-width: 500px) {
-  .appBackground {
-    background-image:url(assets/dreamShareBackgroundMobile.jpg);
+@media (max-width: 815px) {
+  .top {
+    border: none;
+    border-bottom: var(--border);
+    border-radius: 0px 0px 20px 20px;
   }
-  .darkMode .appBackground {
-    background-image:url(assets/dreamShareBackgroundDarkMobile.jpg);
+  .appBackground {
+    padding-top: 0px;
   }
 }
