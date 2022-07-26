@@ -55,6 +55,7 @@ main {
   z-index: -100;
   background-position: center;
   margin-top: -25px;
+  background-size: cover;
 }
 
 .preloader {
