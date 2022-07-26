@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/dreamshare/static/css/main.420a6164.chunk.css",
+    "main.js": "/dreamshare/static/js/main.e44b09e0.chunk.js",
+    "main.js.map": "/dreamshare/static/js/main.e44b09e0.chunk.js.map",
+    "runtime-main.js": "/dreamshare/static/js/runtime-main.2033bb94.js",
+    "runtime-main.js.map": "/dreamshare/static/js/runtime-main.2033bb94.js.map",
+    "static/js/2.efca8e47.chunk.js": "/dreamshare/static/js/2.efca8e47.chunk.js",
+    "static/js/2.efca8e47.chunk.js.map": "/dreamshare/static/js/2.efca8e47.chunk.js.map",
+    "index.html": "/dreamshare/index.html",
+    "precache-manifest.476fba8f6c4f2593563a8abf3acb5e12.js": "/dreamshare/precache-manifest.476fba8f6c4f2593563a8abf3acb5e12.js",
+    "service-worker.js": "/dreamshare/service-worker.js",
+    "static/css/main.420a6164.chunk.css.map": "/dreamshare/static/css/main.420a6164.chunk.css.map",
+    "static/js/2.efca8e47.chunk.js.LICENSE.txt": "/dreamshare/static/js/2.efca8e47.chunk.js.LICENSE.txt",
+    "static/media/dreamShareAkatsukiCloud.png": "/dreamshare/static/media/dreamShareAkatsukiCloud.98b98507.png",
+    "static/media/App.css": "/dreamshare/static/media/wallpaperbetter.84058aa5.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.2033bb94.js",
+    "static/js/2.efca8e47.chunk.js",
+    "static/css/main.420a6164.chunk.css",
+    "static/js/main.e44b09e0.chunk.js"
+  ]
+}
