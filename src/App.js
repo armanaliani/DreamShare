@@ -274,6 +274,7 @@ class App extends Component {
           <img src={cloudImg} alt="a pulsing cloud while app content loads" />
         </div>
         <div className="appBackground">
+          <div className='backgroundImg'></div>
           <section className="top">
             <div>
               <h1>Dream Share</h1>
